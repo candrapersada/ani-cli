@@ -168,8 +168,8 @@ generate_link() {
         1) provider_init "gogoanime" "/Luf-mp4 :/p" ;; # gogoanime(m3u8)(multi)
         2) provider_init "gogoanime" "/Luf-mp4 :/p" ;; # gogoanime(m3u8)(multi)
         3) provider_init "gogoanime" "/Luf-mp4 :/p" ;; # gogoanime(m3u8)(multi)
-        4) provider_init "gogoanime" "/Luf-mp4 :/p" ;; # gogoanime(m3u8)(multi)
-        *) provider_init "gogoanime" "/Luf-mp4 :/p" ;; # gogoanime(m3u8)(multi)
+        4) provider_init "biananset" "/Luf-Mp4 :/p" ;; # biananset(m3u8)(multi)
+        *) provider_init "biananset" "/Luf-Mp4 :/p" ;; # biananset(m3u8)(multi)
     esac
     [ -n "$provider_id" ] && get_links "$provider_id"
 }
