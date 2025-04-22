@@ -292,7 +292,6 @@ download() {
     ffmpegconvter="-c:v libx264 -vf scale='min(640,iw)':'min(360,ih)' -preset medium -c:a aac -crf 34 -b:a 64k"
     case $1 in
         *m3u8*)
-        # [ -e "$download_dir/$2.vtt" ] && ffmpegsubtitle=" -i $subtitle -c:s mov_text" && rm "$download_dir/$2.vtt"
         [ -n "$subtitle" ] && ffmpegsubtitle=" -i $subtitle -c:s mov_text"
         ffmpeg -extension_picky 0 -referer "$m3u8_refr" -loglevel error -stats -i "$1"$ffmpegsubtitle $ffmpegconvter "$TMP_DIR/$2.mp4"
         # embed subs into downloads
