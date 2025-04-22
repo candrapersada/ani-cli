@@ -3,7 +3,7 @@
 [ -e "$HOME/.config/mpv" ] && export MPV_HOME="$HOME/.config/mpv"
 [ ! -e "$APPDATA" ] && export HOME=$HOME/.cache/ani-cli
 # [ -e "$CMDER_ROOT" ] && export HOME=$CMDER_ROOT/opt/home/.cache/ani-cli
-[ ! -e "$APPDATA" ] && TMP_DIR=$(mktemp --directory)
+TMP_DIR=$(mktemp --directory)
 
 version_number="4.10.0"
 
@@ -299,8 +299,8 @@ download() {
             ;;
         *)
             aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$TMP_DIR" -o "$2.bak.mp4" --download-result=hide
-            ffmpeg -loglevel error -stats -i "$TMP_DIR/$2.bak.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4"
             [ -e "$TMP_DIR/$2.bak.mp4.aria2" ] && download
+            ffmpeg -loglevel error -stats -i "$TMP_DIR/$2.bak.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4"
             # ffmpeg -referer "$allanime_refr" -loglevel error -stats -i "$1" $ffmpegconvter "$TMP_DIR/$2.mp4"
 
             ;;
