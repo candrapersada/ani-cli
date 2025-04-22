@@ -1,9 +1,9 @@
-#!/bin/sh
 [ -e "$HOME/.var/app/io.mpv.Mpv/config/mpv" ] && export MPV_HOME="$HOME/.var/app/io.mpv.Mpv/config/mpv"
 [ -e "$HOME/.config/mpv" ] && export MPV_HOME="$HOME/.config/mpv"
 [ ! -e "$APPDATA" ] && export HOME=$HOME/.cache/ani-cli
 # [ -e "$CMDER_ROOT" ] && export HOME=$CMDER_ROOT/opt/home/.cache/ani-cli
-TMP_DIR=$(mktemp --directory)
+# [ ! -e "$APPDATA" ] && TMP_DIR=$(mktemp --directory)
+TMP_DIR=$(mktemp --directoryTMP_DIR=$(mktemp --directory)
 
 version_number="4.10.0"
 
@@ -298,13 +298,14 @@ download() {
             # [ -e "$download_dir/$2.vtt" ] && ffmpeg -loglevel error -i "$download_dir/$2.mp4" -i "$download_dir/$2.vtt" -c copy -c:s mov_text "$download_dir/$2.bak.mp4" && mv "$download_dir/$2.bak.mp4" "$download_dir/$2.mp4" && rm "$download_dir/$2.vtt"
             ;;
         *)
-            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$TMP_DIR" -o "$2.bak.mp4" --download-result=hide
-            [ -e "$TMP_DIR/$2.bak.mp4.aria2" ] && aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$TMP_DIR" -o "$2.bak.mp4" --download-result=hide
-            [ ! -e "$TMP_DIR/$2.bak.mp4.aria2" ] && ffmpeg -loglevel error -stats -i "$TMP_DIR/$2.bak.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4"
+            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$HOME/.cache" -o "$2.mp4" --download-result=hide && ffmpeg -loglevel error -stats -i "$HOME/.cache/$2.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4" && rm "$HOME/.cache/$2.mp4"
+			
+	    	# yt-dlp --referer "$allanime_refr" "$1" --retries infinite -o "$HOME/yt-dlp_temp/$2.mp4" --downloader aria2c --downloader-args aria2c:"-m 100 -x 1" && ffmpeg -loglevel error -stats -i "$HOME/yt-dlp_temp/$2.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4" && rm "$HOME/yt-dlp_temp/$2.mp4"
+	    	# yt-dlp --referer "$allanime_refr" "$1" --retries infinite -o "$HOME/yt-dlp_temp/$2.mp4" --downloader aria2c --downloader-args aria2c:"-m 100 -x 1" --exec "ffmpeg -loglevel error -stats -i %(filepath,_filename|)q $ffmpegconvter ${TMP_DIR/$2.mp4}"
             # ffmpeg -referer "$allanime_refr" -loglevel error -stats -i "$1" $ffmpegconvter "$TMP_DIR/$2.mp4"
             ;;
     esac
-    mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
+    [ -e "$TMP_DIR/$2.mp4" ] && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
 }
 
 play_episode() {
