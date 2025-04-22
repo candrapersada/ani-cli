@@ -299,10 +299,10 @@ download() {
             # [ -e "$download_dir/$2.vtt" ] && ffmpeg -loglevel error -i "$download_dir/$2.mp4" -i "$download_dir/$2.vtt" -c copy -c:s mov_text "$download_dir/$2.bak.mp4" && mv "$download_dir/$2.bak.mp4" "$download_dir/$2.mp4" && rm "$download_dir/$2.vtt"
             ;;
         *)
-            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$HOME/.cache" -o "$2.mp4" --download-result=hide && ffmpeg -loglevel error -stats -i "$HOME/.cache/$2.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4" && rm "$HOME/.cache/$2.mp4"
+            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 1 -s 16 "$1" --dir=$TMP_DIR/aria2_temp" -o "$2.mp4" --download-result=hide && ffmpeg -loglevel error -stats -i "$TMP_DIR/aria2_temp/$2.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4"
 			
-	    	# yt-dlp --referer "$allanime_refr" "$1" --retries infinite -o "$HOME/yt-dlp_temp/$2.mp4" --downloader aria2c --downloader-args aria2c:"-m 100 -x 1" && ffmpeg -loglevel error -stats -i "$HOME/yt-dlp_temp/$2.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4" && rm "$HOME/yt-dlp_temp/$2.mp4"
-	    	# yt-dlp --referer "$allanime_refr" "$1" --retries infinite -o "$HOME/yt-dlp_temp/$2.mp4" --downloader aria2c --downloader-args aria2c:"-m 100 -x 1" --exec "ffmpeg -loglevel error -stats -i %(filepath,_filename|)q $ffmpegconvter ${TMP_DIR/$2.mp4}"
+            # yt-dlp --referer "$allanime_refr" "$1" --retries infinite -o "$HOME/yt-dlp_temp/$2.mp4" --downloader aria2c --downloader-args aria2c:"-m 100 -x 1" && ffmpeg -loglevel error -stats -i "$HOME/yt-dlp_temp/$2.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4" && rm "$HOME/yt-dlp_temp/$2.mp4"
+            # yt-dlp --referer "$allanime_refr" "$1" --retries infinite -o "$HOME/yt-dlp_temp/$2.mp4" --downloader aria2c --downloader-args aria2c:"-m 100 -x 1" --exec "ffmpeg -loglevel error -stats -i %(filepath,_filename|)q $ffmpegconvter ${TMP_DIR/$2.mp4}"
             # ffmpeg -referer "$allanime_refr" -loglevel error -stats -i "$1" $ffmpegconvter "$TMP_DIR/$2.mp4"
             ;;
     esac
