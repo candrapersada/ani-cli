@@ -293,7 +293,7 @@ download() {
         *m3u8*)
         # [ -e "$download_dir/$2.vtt" ] && ffmpegsubtitle=" -i $subtitle -c:s mov_text" && rm "$download_dir/$2.vtt"
         [ -n "$subtitle" ] && ffmpegsubtitle=" -i $subtitle -c:s mov_text"
-            ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1"$ffmpegsubtitle $ffmpegconvter "$TMP_DIR/$2.mp4"
+            ffmpeg -extension_picky 0 -referer "$m3u8_refr" -loglevel error -stats -i "$1"$ffmpegsubtitle $ffmpegconvter "$TMP_DIR/$2.mp4"
             # embed subs into downloads
             # [ -e "$download_dir/$2.vtt" ] && ffmpeg -loglevel error -i "$download_dir/$2.mp4" -i "$download_dir/$2.vtt" -c copy -c:s mov_text "$download_dir/$2.bak.mp4" && mv "$download_dir/$2.bak.mp4" "$download_dir/$2.mp4" && rm "$download_dir/$2.vtt"
             ;;
