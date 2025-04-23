@@ -1,4 +1,10 @@
 #!/bin/sh
+[ -e "$HOME/.var/app/io.mpv.Mpv/config/mpv" ] && export MPV_HOME="$HOME/.var/app/io.mpv.Mpv/config/mpv"
+[ -e "$HOME/.config/mpv" ] && export MPV_HOME="$HOME/.config/mpv"
+[ ! -e "$APPDATA" ] && export HOME=$HOME/.cache/ani-cli
+# [ -e "$CMDER_ROOT" ] && export HOME=$CMDER_ROOT/opt/home/.cache/ani-cli
+# [ ! -e "$APPDATA" ] && TMP_DIR=$(mktemp --directory)
+TMP_DIR=$(mktemp --directory)
 
 version_number="4.10.0"
 
@@ -101,7 +107,7 @@ version_info() {
 }
 
 update_script() {
-    update="$(curl -s -A "$agent" "https://raw.githubusercontent.com/pystardust/ani-cli/master/ani-cli")" || die "Connection error"
+    update="$(curl -s -A "$agent" "https://raw.githubusercontent.com/candrapersada/ani-cli/refs/heads/ani-cli-ffmpeg/ani-cli")" || die "Connection error"
     update="$(printf '%s\n' "$update" | diff -u "$0" -)"
     if [ -z "$update" ]; then
         printf "Script is up to date :)\n"
@@ -139,6 +145,8 @@ get_links() {
     response="$(curl -e "$allanime_refr" -s "https://${allanime_base}$*" -A "$agent")"
     episode_link="$(printf '%s' "$response" | sed 's|},{|\
 |g' | sed -nE 's|.*link":"([^"]*)".*"resolutionStr":"([^"]*)".*|\2 >\1|p;s|.*hls","url":"([^"]*)".*"hardsub_lang":"en-US".*|\1|p')"
+    printf '%s' "$response" | grep -q "master.m3u8" && m3u8_refr=$(printf '%s' "$response" | sed -nE 's|.*Referer":"([^"]*)".*|\1|p') &&
+        printf '%s\n' "m3u8_refr >$m3u8_refr" > "$cache_dir/m3u8_refr"
 
     case "$episode_link" in
         *repackager.wixmp.com*)
@@ -283,21 +291,23 @@ update_history() {
 
 download() {
     # download subtitle if it's set
-    [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
+    # [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
+    ffmpegconvter="-c:v libx264 -vf scale='min(640,iw)':'min(360,ih)' -preset medium -c:a aac -crf 34 -b:a 64k"
     case $1 in
         *m3u8*)
-            if command -v "yt-dlp" >/dev/null; then
-                yt-dlp --referer "$m3u8_refr" "$1" --no-skip-unavailable-fragments --fragment-retries infinite -N 16 -o "$download_dir/$2.mp4"
-            else
-                ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -c copy "$download_dir/$2.mp4"
-            fi
-            # embed subs into downloads
-            # [ -e "$download_dir/$2.vtt" ] && ffmpeg -i "$download_dir/$2.mp4" -i "$download_dir/$2.vtt" -c copy -c:s mov_text "$download_dir/$2.bak.mp4" && mv "$download_dir/$2.bak.mp4" "$download_dir/$2.mp4"
+        [ -n "$subtitle" ] && ffmpegsubtitle=" -i $subtitle -c:s mov_text"
+        ffmpeg -extension_picky 0 -referer "$m3u8_refr" -loglevel error -stats -i "$1"$ffmpegsubtitle $ffmpegconvter "$TMP_DIR/$2.mp4"
+        # embed subs into downloads
+        # [ -e "$download_dir/$2.vtt" ] && ffmpeg -loglevel error -i "$download_dir/$2.mp4" -i "$download_dir/$2.vtt" -c copy -c:s mov_text "$download_dir/$2.bak.mp4" && mv "$download_dir/$2.bak.mp4" "$download_dir/$2.mp4" && rm "$download_dir/$2.vtt"
             ;;
         *)
-            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$download_dir" -o "$2.mp4" --download-result=hide
+        aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 1 -s 16 "$1" --dir="$TMP_DIR/aria2_temp" -o "$2.mp4" --download-result=hide && ffmpeg -loglevel error -stats -i "$TMP_DIR/aria2_temp/$2.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4"
+        # yt-dlp --referer "$allanime_refr" "$1" --retries infinite -o "$HOME/yt-dlp_temp/$2.mp4" --downloader aria2c --downloader-args aria2c:"-m 100 -x 1" && ffmpeg -loglevel error -stats -i "$HOME/yt-dlp_temp/$2.mp4" $ffmpegconvter "$TMP_DIR/$2.mp4" && rm "$HOME/yt-dlp_temp/$2.mp4"
+        # yt-dlp --referer "$allanime_refr" "$1" --retries infinite -o "$HOME/yt-dlp_temp/$2.mp4" --downloader aria2c --downloader-args aria2c:"-m 100 -x 1" --exec "ffmpeg -loglevel error -stats -i %(filepath,_filename|)q $ffmpegconvter ${TMP_DIR/$2.mp4}"
+        # ffmpeg -referer "$allanime_refr" -loglevel error -stats -i "$1" $ffmpegconvter "$TMP_DIR/$2.mp4"
             ;;
     esac
+    [ -e "$TMP_DIR/$2.mp4" ] && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
 }
 
 play_episode() {
