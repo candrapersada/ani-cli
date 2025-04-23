@@ -290,18 +290,18 @@ update_history() {
 download() {
     # download subtitle if it's set
     # [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
+    ffmpegconvter="-c:v libx264 -vf scale='min(640,iw)':'min(360,ih)' -preset medium -c:a aac -crf 34 -b:a 64k"
+    [ -n "$subtitle" ] && ffmpegsubtitle=" -i $subtitle -c:s mov_text"
     case $1 in
+echo $ffmpegconvter$ffmpegsubtitle
+sleep 60
         *m3u8*)
-            if command -v "yt-dlp" >/dev/null; then
-                yt-dlp --referer "$m3u8_refr" "$1" --no-skip-unavailable-fragments --fragment-retries infinite -N 16 -o "$TMP_DIR/$2.mp4"
-            else
-                ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -c copy "$TMP_DIR/$2.mp4"
-            fi
+            ffmpeg -extension_picky 0 -referer "$m3u8_refr" -loglevel error -stats -i "$1" $ffmpegconvter$ffmpegsubtitle "$TMP_DIR/$2.mp4"
             # embed subs into downloads
-            [ -n "$subtitle" ] && ffmpeg -loglevel error -i "$TMP_DIR/$2.mp4" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.bak.mp4" && mv "$TMP_DIR/$2.bak.mp4" "$TMP_DIR/$2.mp4"
+            # [ -n "$subtitle" ] && ffmpeg -loglevel error -i "$TMP_DIR/$2.mp4" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.bak.mp4" && mv "$TMP_DIR/$2.bak.mp4" "$TMP_DIR/$2.mp4"
             ;;
         *)
-            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$TMP_DIR" -o "$2.mp4" --download-result=hide
+            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 1 -s 16 "$1" --dir="$TMP_DIR/aria2_temp" -o "$2.mp4" --download-result=hide && ffmpeg -loglevel error -stats -i "$TMP_DIR/aria2_temp/$2.mp4" $ffmpegconvter$ffmpegsubtitle "$TMP_DIR/$2.mp4"
             ;;
     esac
 [ -e "$TMP_DIR/$2.mp4" ] && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
