@@ -1,4 +1,10 @@
 #!/bin/sh
+[ -e "$HOME/.var/app/io.mpv.Mpv/config/mpv" ] && export MPV_HOME="$HOME/.var/app/io.mpv.Mpv/config/mpv"
+[ -e "$HOME/.config/mpv" ] && export MPV_HOME="$HOME/.config/mpv"
+[ ! -e "$APPDATA" ] && export HOME=$HOME/.cache/ani-cli
+# [ -e "$CMDER_ROOT" ] && export HOME=$CMDER_ROOT/opt/home/.cache/ani-cli
+# [ ! -e "$APPDATA" ] && TMP_DIR=$(mktemp --directory)
+TMP_DIR=$(mktemp --directory)
 
 version_number="4.10.0"
 
@@ -101,7 +107,7 @@ version_info() {
 }
 
 update_script() {
-    update="$(curl -s -A "$agent" "https://raw.githubusercontent.com/pystardust/ani-cli/master/ani-cli")" || die "Connection error"
+    update="$(curl -s -A "$agent" "https://raw.githubusercontent.com/candrapersada/ani-cli/FFmpeg/ani-cli")" || die "Connection error"
     update="$(printf '%s\n' "$update" | diff -u "$0" -)"
     if [ -z "$update" ]; then
         printf "Script is up to date :)\n"
