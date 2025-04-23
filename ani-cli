@@ -289,21 +289,22 @@ update_history() {
 
 download() {
     # download subtitle if it's set
-    [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
+    # [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
     case $1 in
         *m3u8*)
             if command -v "yt-dlp" >/dev/null; then
-                yt-dlp --referer "$m3u8_refr" "$1" --no-skip-unavailable-fragments --fragment-retries infinite -N 16 -o "$download_dir/$2.mp4"
+                yt-dlp --referer "$m3u8_refr" "$1" --no-skip-unavailable-fragments --fragment-retries infinite -N 16 -o "$TMP_DIR/$2.mp4"
             else
-                ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -c copy "$download_dir/$2.mp4"
+                ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -c copy "$TMP_DIR/$2.mp4"
             fi
             # embed subs into downloads
-            # [ -e "$download_dir/$2.vtt" ] && ffmpeg -i "$download_dir/$2.mp4" -i "$download_dir/$2.vtt" -c copy -c:s mov_text "$download_dir/$2.bak.mp4" && mv "$download_dir/$2.bak.mp4" "$download_dir/$2.mp4"
+            [ -n "$subtitle" ] && ffmpeg -i "$TMP_DIR/$2.mp4" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.bak.mp4" && mv "$TMP_DIR/$2.bak.mp4" "$TMP_DIR/$2.mp4"
             ;;
         *)
-            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$download_dir" -o "$2.mp4" --download-result=hide
+            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue --async-dns=false --summary-interval=0 -x 16 -s 16 "$1" --dir="$TMP_DIR" -o "$2.mp4" --download-result=hide
             ;;
     esac
+[ -e "$TMP_DIR/$2.mp4" ] && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
 }
 
 play_episode() {
