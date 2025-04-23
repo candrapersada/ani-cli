@@ -293,7 +293,7 @@ download() {
     ffmpegconvter="-c:v libx264 -vf scale='min(640,iw)':'min(360,ih)' -preset medium -c:a aac -crf 34 -b:a 64k"
     [ -n "$subtitle" ] && ffmpegsubtitle=" -i $subtitle -c:s mov_text"
     case $1 in
-echo $ffmpegconvter$ffmpegsubtitle
+echo "$ffmpegconvter$ffmpegsubtitle"
 sleep 60
         *m3u8*)
             ffmpeg -extension_picky 0 -referer "$m3u8_refr" -loglevel error -stats -i "$1" $ffmpegconvter$ffmpegsubtitle "$TMP_DIR/$2.mp4"
