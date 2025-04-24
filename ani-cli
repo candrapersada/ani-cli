@@ -290,10 +290,11 @@ update_history() {
 download() {
     # download subtitle if it's set
     # [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
+    [ -n "$subtitle" ] && mpegts=--hls-use-mpegts
     case $1 in
         *m3u8*)
             if command -v "yt-dlp" >/dev/null; then
-                yt-dlp --referer "$m3u8_refr" "$1" --hls-use-mpegts --no-skip-unavailable-fragments --fragment-retries infinite -N 16 -o "$TMP_DIR/$2.mp4"
+                yt-dlp --referer "$m3u8_refr" "$1" $mpegts --no-skip-unavailable-fragments --fragment-retries infinite -N 16 -o "$TMP_DIR/$2.mp4"
             else
                 ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -c copy "$TMP_DIR/$2.mp4"
             fi
