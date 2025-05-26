@@ -295,7 +295,6 @@ download() {
     [ -n "$subtitle" ] && ffmpegsubtitle="-i $subtitle -c:s mov_text"
     case $1 in
         *m3u8*)
-            # -extension_picky 0
             [ ! -e "$download_dir/$2.mp4" ] && ffmpeg $extension_picky -referer "$m3u8_refr" -loglevel error -stats -i "$1" $ffmpegsubtitle $ffmpegconvter -pass 1 -passlogfile "$TMP_DIR/ffmpeg2pass" -f null /dev/null && ffmpeg $extension_picky -referer "$m3u8_refr" -loglevel error -stats -i "$1" $ffmpegsubtitle $ffmpegconvter -pass 2 -passlogfile "$TMP_DIR/ffmpeg2pass" "$TMP_DIR/$2.mp4"
 
             # embed subs into downloads
