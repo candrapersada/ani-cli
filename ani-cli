@@ -298,7 +298,6 @@ download() {
             else
                 [ ! -e "$download_dir/$2.mp4" ] && [ -n "$subtitle" ] && ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.mp4" && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
                 [ ! -e "$download_dir/$2.mp4" ] && [ ! -n "$subtitle" ] && ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -c copy "$TMP_DIR/$2.mp4"
-
             fi
             # embed subs into downloads
             [ -n "$subtitle" ] && [ -e "$TMP_DIR/$2.mp4" ] && ffmpeg -loglevel error -i "$TMP_DIR/$2.mp4" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.bak.mp4" && mv "$TMP_DIR/$2.bak.mp4" "$TMP_DIR/$2.mp4"
