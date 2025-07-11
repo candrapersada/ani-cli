@@ -306,7 +306,7 @@ download() {
             ;;
     esac
     [ -e "$TMP_DIR/$2.mp4" ] && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
-    [ -e "$download_dir/$2.vtt" ] && del "$download_dir/$2.vtt"
+    [ -e "$download_dir/$2.vtt" ] && rm "$download_dir/$2.vtt"
 }
 
 play_episode() {
