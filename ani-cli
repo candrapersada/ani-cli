@@ -289,18 +289,19 @@ update_history() {
 
 download() {
     # download subtitle if it's set
-    # [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
-    [ -n "$subtitle" ] && mpegts=--hls-use-mpegts
+    [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
+    # [ -n "$subtitle" ] && mpegts=--hls-use-mpegts
+    [ -e "$download_dir/$2.vtt" ] && mpegts=--hls-use-mpegts
     case $1 in
         *m3u8*)
             if command -v "yt-dlp" >/dev/null; then
                 [ ! -e "$download_dir/$2.mp4" ] && yt-dlp --referer "$m3u8_refr" "$1" $mpegts --no-skip-unavailable-fragments --fragment-retries infinite -N 11 -o "$TMP_DIR/$2.mp4"
             else
-                [ ! -e "$download_dir/$2.mp4" ] && [ -n "$subtitle" ] && ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.mp4" && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
-                [ ! -e "$download_dir/$2.mp4" ] && [ ! -n "$subtitle" ] && ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -c copy "$TMP_DIR/$2.mp4"
+                [ ! -e "$download_dir/$2.mp4" ] && [ -e "$download_dir/$2.vtt" ] && ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.mp4" && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
+                [ ! -e "$download_dir/$2.mp4" ] && [ ! -e "$download_dir/$2.vtt" ] && ffmpeg -referer "$m3u8_refr" -loglevel error -stats -i "$1" -c copy "$TMP_DIR/$2.mp4" && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
             fi
             # embed subs into downloads
-            [ -n "$subtitle" ] && [ -e "$TMP_DIR/$2.mp4" ] && ffmpeg -loglevel error -i "$TMP_DIR/$2.mp4" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.bak.mp4" && mv "$TMP_DIR/$2.bak.mp4" "$TMP_DIR/$2.mp4"
+            [ -e "$download_dir/$2.vtt" ] && [ -e "$TMP_DIR/$2.mp4" ] && ffmpeg -loglevel error -i "$TMP_DIR/$2.mp4" -i "$subtitle" -c copy -c:s mov_text "$TMP_DIR/$2.bak.mp4" && mv "$TMP_DIR/$2.bak.mp4" "$TMP_DIR/$2.mp4"
             ;;
         *)
             # shellcheck disable=SC2086
@@ -308,6 +309,7 @@ download() {
             ;;
     esac
 [ -e "$TMP_DIR/$2.mp4" ] && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
+[ -e "$download_dir/$2.vtt" ] && rm "$download_dir/$2.vtt"
 }
 
 play_episode() {
