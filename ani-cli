@@ -289,10 +289,11 @@ update_history() {
 
 download() {
     # download subtitle if it's set
-    # [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
+    [ -n "$subtitle" ] && curl -s "$subtitle" -o "$download_dir/$2.vtt"
     ffmpegconvter="-c:v libx264 -vf scale='min(640,iw)':'min(360,ih)' -preset medium -c:a aac -b:v 132k -b:a 64k"
     #ffmpegconvter="-c:v libx264 -vf scale='min(640,iw)':'min(360,ih)' -preset medium -c:a aac -b:v 132k -b:a 48k"
-    [ -n "$subtitle" ] && ffmpegsubtitle="-i $subtitle -c:s mov_text"
+    # [ -n "$subtitle" ] && ffmpegsubtitle="-i $subtitle -c:s mov_text"
+    [ -e "$download_dir/$2.vtt" ] && ffmpegsubtitle="-i $subtitle -c:s mov_text"
     case $1 in
         *m3u8*)
             [ -e "$APPDATA" ] && extension_picky="-extension_picky 0"
@@ -308,6 +309,7 @@ download() {
             ;;
     esac
 [ -e "$TMP_DIR/$2.mp4" ] && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
+[ -e "$download_dir/$2.vtt" ] && rm "$download_dir/$2.vtt"
 }
 
 play_episode() {
