@@ -307,7 +307,7 @@ download() {
             ;;
         *)
             # shellcheck disable=SC2086
-            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue $iSH_DownFix --summary-interval=0 -x 16 -s 16 "$1" --dir="$TMP_DIR/aria2_temp" -o "$2.mp4" --download-result=hide && ffmpeg -loglevel error -stats -i "$TMP_DIR/aria2_temp/$2.mp4" $ffmpegsubtitle $ffmpegconvter "$TMP_DIR/$2.mp4"
+            aria2c --referer="$allanime_refr" --enable-rpc=false --check-certificate=false --continue $iSH_DownFix --summary-interval=0 -x 16 -s 16 "$1" --dir="$TMP_DIR/aria2_temp" -o "$2.mp4" --download-result=hide && ffmpeg -loglevel error -stats -i "$TMP_DIR/aria2_temp/$2.mp4" $ffmpegsubtitle "$TMP_DIR/$2.mp4"
             ;;
     esac
     [ -e "$TMP_DIR/$2.mp4" ] && mv "$TMP_DIR/$2.mp4" "$download_dir/$2.mp4"
